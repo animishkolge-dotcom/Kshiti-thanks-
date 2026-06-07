@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>For Kshiti ✨</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: #04060f;
+    color: #fff;
+    /* iOS safe system serif fallback — no Google Fonts dependency */
+    font-family: 'Georgia', 'Times New Roman', serif;
+    overflow-x: hidden;
+    /* iOS Safari 100vh fix */
+    min-height: -webkit-fill-available;
+  }
+
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  #kanya-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  .nebula {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .n1 { width: 500px; height: 500px; background: #3b1f6e; top: -150px; left: -100px; }
+  .n2 { width: 400px; height: 400px; background: #1a3a5c; bottom: 20%; right: -100px; }
+  .n3 { width: 300px; height: 300px; background: #6e1f3b; top: 50%; left: 30%; }
+
+  .journey {
+    position: relative;
+    z-index: 2;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-align-items: center;
+    align-items: center;
+  }
+
+  .msg {
+    position: relative;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    padding: 60px 28px;
+    opacity: 0;
+    -webkit-transform: translateY(40px);
+    transform: translateY(40px);
+    -webkit-transition: opacity 1s ease, -webkit-transform 1s ease;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .msg.visible {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+
+  .msg-inner {
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ── INTRO ── */
+  .name-line {
+    font-size: 2.6rem;
+    font-weight: normal;
+    line-height: 1.3;
+    color: #f5e6d0;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+    font-style: normal;
+  }
+  .name-line em {
+    color: #f4a5b0;
+    font-style: italic;
+  }
+
+  .scroll-line {
+    font-size: 1.15rem;
+    color: #ffffff;
+    font-weight: normal;
+    line-height: 1.6;
+    margin-bottom: 48px;
+  }
+
+  .scroll-hint {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffffff;
+    -webkit-animation: blink 2s ease-in-out infinite;
+    animation: blink 2s ease-in-out infinite;
+  }
+  .arrow {
+    display: block;
+    margin-top: 12px;
+    font-size: 22px;
+    color: #ffffff;
+    -webkit-animation: arrowBounce 1.5s ease-in-out infinite;
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+
+  @-webkit-keyframes arrowBounce {
+    0%,100% { -webkit-transform: translateY(0); opacity: 0.5; }
+    50%      { -webkit-transform: translateY(8px); opacity: 1; }
+  }
+  @keyframes arrowBounce {
+    0%,100% { transform: translateY(0); opacity: 0.5; }
+    50%      { transform: translateY(8px); opacity: 1; }
+  }
+  @-webkit-keyframes blink {
+    0%,100% { opacity: 0.5; }
+    50%      { opacity: 1; }
+  }
+  @keyframes blink {
+    0%,100% { opacity: 0.5; }
+    50%      { opacity: 1; }
+  }
+
+  /* ── WORD CARDS ── */
+  .word-big {
+    font-size: 3.4rem;
+    font-weight: normal;
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+  .word-big.pink  { color: #f4a5b0; font-style: italic; }
+  .word-big.white { color: #f5f0ff; font-style: normal; }
+
+  .word-sub {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-top: 16px;
+    font-weight: 300;
+  }
+
+  /* ── LETTER ── */
+  .letter-wrap {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    padding: 34px 28px;
+    text-align: left;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .letter-name {
+    font-size: 1.3rem;
+    font-style: italic;
+    color: #f4a5b0;
+    margin-bottom: 14px;
+  }
+  .letter-divider {
+    height: 1px;
+    background: -webkit-linear-gradient(left, transparent, rgba(249,199,132,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(249,199,132,0.4), transparent);
+    margin-bottom: 18px;
+  }
+  .letter-body {
+    font-size: 1rem;
+    line-height: 1.95;
+    color: rgba(255,255,255,0.8);
+    font-weight: normal;
+  }
+  .letter-body strong {
+    color: #f5e6d0;
+    font-weight: bold;
+  }
+  .letter-sign {
+    margin-top: 22px;
+    text-align: right;
+    font-style: italic;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.9rem;
+  }
+
+  /* ── DIVIDER ── */
+  .constellation {
+    position: relative;
+    height: 60px;
+    width: 2px;
+    background: -webkit-linear-gradient(top, transparent, rgba(255,255,255,0.12), transparent);
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent);
+    margin: 0 auto;
+    z-index: 2;
+  }
+  .constellation::before,
+  .constellation::after {
+    content: '✦';
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+  }
+  .constellation::before { top: 0; }
+  .constellation::after  { bottom: 0; }
+
+  /* ── SHOOTING STAR ── */
+  .shooting-star {
+    position: fixed;
+    width: 2px;
+    height: 70px;
+    background: -webkit-linear-gradient(top, rgba(255,255,255,0), #fff);
+    background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    -webkit-animation: shoot 1s ease-out both;
+    animation: shoot 1s ease-out both;
+  }
+  @-webkit-keyframes shoot {
+    0%   { opacity: 0.9; -webkit-transform: translate(0,0) rotate(var(--angle)); }
+    100% { opacity: 0;   -webkit-transform: translate(var(--tx), var(--ty)) rotate(var(--angle)); }
+  }
+  @keyframes shoot {
+    0%   { opacity: 0.9; transform: translate(0,0) rotate(var(--angle)); }
+    100% { opacity: 0;   transform: translate(var(--tx), var(--ty)) rotate(var(--angle)); }
+  }
+
+  .end-glow {
+    text-align: center;
+    padding: 60px 24px;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.2);
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    letter-spacing: 3px;
+    z-index: 2;
+    position: relative;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<canvas id="kanya-canvas"></canvas>
+
+<div class="nebula n1"></div>
+<div class="nebula n2"></div>
+<div class="nebula n3"></div>
+
+<div class="journey">
+
+  <!-- INTRO -->
+  <div class="msg msg-intro visible" id="msg0">
+    <div class="msg-inner">
+      <div class="name-line">Hey <em>Kshiti,</em><br>look up. 🌌</div>
+      <div class="scroll-line">
+        Scroll through the stars —<br>something's waiting for you.
+      </div>
+      <div class="scroll-hint">
+        scroll down
+        <span class="arrow">↓</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="constellation"></div>
+
+  <!-- CARD 1: THANK YOU -->
+  <div class="msg" id="msg1">
+    <div class="msg-inner">
+      <div class="word-big pink">Thank You.</div>
+      <div class="word-sub">two words. everything behind them.</div>
+    </div>
+  </div>
+
+  <div class="constellation"></div>
+
+  <!-- CARD 2: FOR BEING THERE -->
+  <div class="msg" id="msg2">
+    <div class="msg-inner">
+      <div class="word-big white">For <em style="color:#f4a5b0;font-style:italic;">being</em></div>
+      <div class="word-big pink" style="margin-top:6px;">there.</div>
+      <div class="word-sub">when most people weren't.</div>
+    </div>
+  </div>
+
+  <div class="constellation"></div>
+
+  <!-- CARD 3: FOR YOUR PATIENCE -->
+  <div class="msg" id="msg3">
+    <div class="msg-inner">
+      <div class="word-big white">For your</div>
+      <div class="word-big pink" style="margin-top:6px;">patience.</div>
+    </div>
+  </div>
+
+  <div class="constellation"></div>
+
+  <!-- CARD 4: LETTER -->
+  <div class="msg" id="msg4">
+    <div class="msg-inner" style="max-width:480px;">
+      <div class="letter-wrap">
+        <div class="letter-name">Hey Kshiti,</div>
+        <div class="letter-divider"></div>
+        <div class="letter-body">
+          I know it's been a while — a long time, really. But some people just stay with you, no matter how much time passes. <strong>You are one of them.</strong><br><br>
+          I just want to say <strong>thank you</strong> — for being patient when I wasn't easy to be around. For staying when most people would've quietly walked away. For never making me feel like a burden.<br><br>
+          You are a real gem, <strong>Kshiti.</strong> 💛
+        </div>
+        <div class="letter-sign">— always grateful 🙏</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="end-glow">✦ &nbsp; ✦ &nbsp; ✦</div>
+
+</div>
+
+<script>
+  // ── iOS 100vh fix ──
+  function setVH() {
+    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+
+  // ── Starfield ──
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  // ── Kanya canvas — declared first to avoid reference error ──
+  const kanyaCanvas = document.getElementById('kanya-canvas');
+  const kctx = kanyaCanvas.getContext('2d');
+
+  function resizeAll() {
+    canvas.width       = window.innerWidth;
+    canvas.height      = window.innerHeight;
+    kanyaCanvas.width  = window.innerWidth;
+    kanyaCanvas.height = window.innerHeight;
+  }
+  resizeAll();
+  window.addEventListener('resize', function() { resizeAll(); buildStars(); drawKanya(); });
+
+  function buildStars() {
+    stars = [];
+    var count = Math.floor((canvas.width * canvas.height) / 3200);
+    for (var i = 0; i < count; i++) {
+      stars.push({
+        x:     Math.random() * canvas.width,
+        y:     Math.random() * canvas.height,
+        r:     Math.random() * 1.3 + 0.2,
+        alpha: Math.random() * 0.6 + 0.2,
+        speed: Math.random() * 0.004 + 0.001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+  buildStars();
+
+  var t = 0;
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    t += 0.012;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      var a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 100 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  // ── Kanya (Virgo) Constellation ──
+  function drawKanya() {
+    var w = kanyaCanvas.width;
+    var h = kanyaCanvas.height;
+    kctx.clearRect(0, 0, w, h);
+
+    var cx    = w * 0.72;
+    var cy    = h * 0.28;
+    var scale = Math.min(w, h) * 0.38;
+
+    var kStars = [
+      { x:  0.00, y:  0.00, name: 'Spica',       r: 3.2 },
+      { x: -0.18, y: -0.22, name: 'Zavijava',    r: 2.0 },
+      { x:  0.12, y: -0.38, name: 'Porrima',     r: 2.2 },
+      { x:  0.28, y: -0.55, name: 'Auva',         r: 1.6 },
+      { x: -0.05, y: -0.60, name: 'Vindemiatrix', r: 2.0 },
+      { x:  0.42, y: -0.30, name: 'Heze',         r: 1.5 },
+      { x:  0.38, y:  0.10, name: 'Syrma',        r: 1.4 },
+      { x: -0.30, y:  0.18, name: 'Minelauva',    r: 1.5 },
+      { x: -0.50, y: -0.08, name: 'Rijl',         r: 1.4 }
+    ];
+
+    var lines = [[0,2],[2,1],[2,3],[3,4],[0,6],[6,5],[6,7],[7,8],[1,8]];
+
+    // Lines
+    kctx.strokeStyle = 'rgba(255,180,200,0.7)';
+    kctx.lineWidth   = 1.2;
+    for (var i = 0; i < lines.length; i++) {
+      var a = lines[i][0], b = lines[i][1];
+      kctx.beginPath();
+      kctx.moveTo(cx + kStars[a].x * scale, cy + kStars[a].y * scale);
+      kctx.lineTo(cx + kStars[b].x * scale, cy + kStars[b].y * scale);
+      kctx.stroke();
+    }
+
+    // Stars
+    for (var j = 0; j < kStars.length; j++) {
+      var s  = kStars[j];
+      var sx = cx + s.x * scale;
+      var sy = cy + s.y * scale;
+
+      var grd = kctx.createRadialGradient(sx, sy, 0, sx, sy, s.r * 8);
+      grd.addColorStop(0, 'rgba(255,180,200,0.9)');
+      grd.addColorStop(1, 'rgba(244,165,176,0)');
+      kctx.beginPath();
+      kctx.arc(sx, sy, s.r * 8, 0, Math.PI * 2);
+      kctx.fillStyle = grd;
+      kctx.fill();
+
+      kctx.beginPath();
+      kctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+      kctx.fillStyle = s.name === 'Spica' ? 'rgba(255,255,255,1)' : 'rgba(255,210,220,1)';
+      kctx.fill();
+    }
+  }
+  drawKanya();
+
+  // ── Scroll reveal — IntersectionObserver with fallback ──
+  var msgs = document.querySelectorAll('.msg');
+
+  if ('IntersectionObserver' in window) {
+    var revealObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.25 });
+    msgs.forEach(function(m) { revealObs.observe(m); });
+  } else {
+    // Fallback: just show all
+    msgs.forEach(function(m) { m.classList.add('visible'); });
+  }
+
+  // ── Shooting stars ──
+  function shootStar() {
+    var s     = document.createElement('div');
+    s.className = 'shooting-star';
+    var angle = -40 + Math.random() * 20;
+    var dist  = 180 + Math.random() * 180;
+    var rad   = angle * Math.PI / 180;
+    var tx    = Math.cos(rad) * dist;
+    var ty    = Math.sin(rad) * dist + dist * 0.6;
+    var dur   = (0.6 + Math.random() * 0.5).toFixed(2);
+
+    s.style.top              = (Math.random() * 60) + '%';
+    s.style.left             = (Math.random() * 80) + '%';
+    s.style.setProperty('--angle', angle + 'deg');
+    s.style.setProperty('--tx',    tx + 'px');
+    s.style.setProperty('--ty',    ty + 'px');
+    s.style.animationDuration = dur + 's';
+
+    document.body.appendChild(s);
+    setTimeout(function() { s.remove(); }, 1200);
+  }
+
+  setInterval(function() { if (Math.random() < 0.6) shootStar(); }, 3000);
+
+  if ('IntersectionObserver' in window) {
+    msgs.forEach(function(m) {
+      new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          setTimeout(shootStar, 200);
+          setTimeout(shootStar, 700);
+        }
+      }, { threshold: 0.5 }).observe(m);
+    });
+  }
+</script>
+</body>
+</html>
